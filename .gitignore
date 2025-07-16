@@ -1,0 +1,65 @@
+# Byte-compiled / optimized / DLL files
+
+**pycache**/
+\*.py\[cod]
+\*\$py.class
+
+# Jupyter Notebooks
+
+\*.ipynb
+
+# Virtual environments
+
+# If your project-root contains a venv, ignore its folders and config
+
+env/
+venv/
+.venv/
+pyvenv.cfg
+etc/
+Include/
+Lib/
+Scripts/
+share/
+
+# IDE / editor folders
+
+.vscode/
+.idea/
+\*.sublime-project
+\*.sublime-workspace
+
+# Python environment files
+
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Distribution / packaging
+
+build/
+dist/
+\*.egg-info/
+.eggs/
+
+# Data artifacts and intermediate outputs
+
+preprocessed\_data/
+processed\_data/
+models/
+ppo\_cnn\_lstm\_logs/
+ppo\_logs/
+ppo\_reward\_logs/
+
+# Logs
+
+\*.log
+
+# Environment variables and secrets
+
+.env
+.env.\*
+
+# Miscellaneous
+
+\*.sqlite3

@@ -1,0 +1,22 @@
+# data & indicators
+yfinance
+numpy
+pandas
+scipy
+ta
+PyEMD
+
+# modeling
+tensorflow      # for CNN–LSTM
+scikit-learn
+matplotlib
+
+torch            # if you plan to run RL on GPU—otherwise CPU-only is fine
+gym
+stable-baselines3
+joblib
+
+# (later) live trading
+alpaca-trade-api
+fastapi
+uvicorn
