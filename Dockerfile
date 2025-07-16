@@ -1,34 +1,48 @@
-FROM python:3.11-slim
+# syntax=docker/dockerfile:1
 
-# Prevent Python from writing .pyc files and enable unbuffered stdout/stderr
+# --- Builder stage: compile wheels ---
+FROM python:3.11-slim AS builder
+
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Install system dependencies (build-essential for any compiled packages)
+# Install build tools only in builder
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-       build-essential \
-       libblas-dev \
-       liblapack-dev && \
+        build-essential \
+        libblas-dev \
+        liblapack-dev && \
     rm -rf /var/lib/apt/lists/*
 
-# Set working directory
+WORKDIR /wheels
+# Copy requirements and build all wheels
+COPY requirements.txt .
+RUN pip wheel --wheel-dir=/wheels --no-cache-dir -r requirements.txt
+
+# --- Runtime stage: minimal image ---
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Install only runtime dependencies (BLAS/LAPACK)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libblas-dev \
+        liblapack-dev && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
+# Copy built wheels and install without re-building
+COPY --from=builder /wheels /wheels
+COPY requirements.txt .
+RUN pip install --no-cache-dir --no-index --find-links=/wheels -r requirements.txt && \
+    rm -rf /wheels
 
-# Copy only requirements first to leverage Docker cache
-COPY requirements.txt ./
+# Copy application code and data artifacts
+COPY deploy.py models/ preprocessed_data/ .
 
-# Upgrade pip and install Python dependencies
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# Do NOT hard-code secrets; use env-vars in Railway settings
 
-# Copy the rest of the application code
-COPY . ./
-
-# Do NOT hard-code secrets here; set these via Railway (or env) when deploying
-# ENV APCA_API_KEY_ID=<your_key>
-# ENV APCA_API_SECRET_KEY=<your_secret>
-# ENV APCA_BASE_URL=https://paper-api.alpaca.markets
-
-# Default command to run your deployment script
+# Default command
 CMD ["python3", "deploy.py"]
